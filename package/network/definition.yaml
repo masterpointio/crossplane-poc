@@ -1,0 +1,66 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xnetworks.aws.masterpoint.io
+spec:
+  group: aws.masterpoint.io
+  names:
+    kind: XNetwork
+    plural: xnetworks
+  claimNames:
+    kind: Network
+    plural: networks
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                namespace:
+                  type: string
+                  description: The namespace which is used in the final label to create names
+                  default: ""
+                region:
+                  type: string
+                  description: The region that these resources are being deployed to.
+                  default: ""
+                env:
+                  type: string
+                  description: The environment of the resources.
+                  default: ""
+                name:
+                  type: string
+                  description: The label built name of the resources.
+                  default: ""
+              required:
+                - namespace
+                - region
+                - env
+                - region
+            status:
+              type: object
+              properties:
+                id:
+                  type: string
+                tags:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    namespace:
+                      type: string
+                      description: The namespace which is used in the final label to create names
+                    region:
+                      type: string
+                      description: The region that these resources are being deployed to.
+                    env:
+                      type: string
+                      description: The environment of the resources.
+                    name:
+                      type: string
+                      description: The label built name of the resources.

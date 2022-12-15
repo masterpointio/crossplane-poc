@@ -1,0 +1,55 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xnetworks.aws.masterpoint.io
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: aws.masterpoint.io/v1alpha1
+    kind: XNetwork
+  # patchSets:
+  # - name: common-label
+  #   patches:
+  #   - type: FromCompositeFieldPath
+  #     fromFieldPath: spec.id
+  #     toFieldPath: metadata.labels[networks.aws.masterpoint.io/network-id]
+  #   - type: FromCompositeFieldPath
+  #     fromFieldPath: spec.tags
+  #     toFieldPath: space.forProvider.tags
+  resources:
+    - name: compositeLabel
+      base:
+        apiVersion: masterpoint.io/v1alpha1
+        kind: XLabel
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.namespace
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.env
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.name
+
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.id
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.tags
+
+
+    - name: compositeVpc
+      base:
+        apiVersion: aws.masterpoint.io/v1alpha1
+        kind: XVpc
+      patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.id
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: status.tags

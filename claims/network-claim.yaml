@@ -1,0 +1,10 @@
+apiVersion: aws.masterpoint.io/v1alpha1
+kind: Network
+metadata:
+  name: default
+  namespace: default
+spec:
+  namespace: mp
+  region: ue1
+  env: poc
+  name: default

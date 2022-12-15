@@ -1,0 +1,36 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xvpcs.aws.masterpoint.io
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: aws.masterpoint.io/v1alpha1
+    kind: XVpc
+  patchSets:
+  - name: common-label
+    patches:
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.id
+      toFieldPath: metadata.labels[networks.aws.masterpoint.io/network-id]
+    - type: FromCompositeFieldPath
+      fromFieldPath: spec.tags
+      toFieldPath: space.forProvider.tags
+  resources:
+    - name: vpc-test
+      base:
+        apiVersion: ec2.aws.upbound.io/v1beta1
+        kind: VPC
+        spec:
+          forProvider:
+            region: us-west-2
+            cidrBlock: 192.168.0.0/16
+            enableDnsSupport: true
+            enableDnsHostnames: true
+            tags:
+              Owner: Platform Team
+              Name: platformref-vpc
+      patches:
+        - type: PatchSet
+          patchSetName: common-label

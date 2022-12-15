@@ -1,0 +1,123 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xlabels.masterpoint.io
+  labels:
+    provider: none
+spec:
+  compositeTypeRef:
+    apiVersion: masterpoint.io/v1alpha1
+    kind: XLabel
+  # patchSets:
+  resources:
+    - name: none
+      base:
+        apiVersion: nop.crossplane.io/v1alpha1
+        kind: NopResource
+        spec:
+          forProvider:
+            # This NopResource will set its 'Ready' status condition to 'True'
+            # after 1 seconds.
+            conditionAfter:
+            - time: 1s
+              conditionType: Ready
+              conditionStatus: "True"
+            tags:
+              id: ""
+              namespace: ""
+              region: ""
+              env: ""
+              name: ""
+
+      patches:
+        # - type: CombineFromComposite
+        #   combine:
+        #     variables:
+        #       - fromFieldPath: spec.namespace
+        #       - fromFieldPath: spec.region
+        #       - fromFieldPath: spec.env
+        #       - fromFieldPath: spec.name
+        #     strategy: string
+        #     string:
+        #       fmt: "%s-%s-%s-%s"
+        #   toFieldPath: status.tags.id
+        #   policy:
+        #     fromFieldPath: Required
+
+        # - type: FromCompositeFieldPath
+        #   fromFieldPath: spec.namespace
+        #   toFieldPath: status.tags.namespace
+
+        # - type: FromCompositeFieldPath
+        #   fromFieldPath: spec.region
+        #   toFieldPath: status.tags.region
+
+        # - type: FromCompositeFieldPath
+        #   fromFieldPath: spec.env
+        #   toFieldPath: status.tags.env
+
+        # - type: FromCompositeFieldPath
+        #   fromFieldPath: spec.name
+        #   toFieldPath: status.tags.name
+
+        # - type: ToCompositeFieldPath
+        #   fromFieldPath: status.tags.id
+        #   toFieldPath: status.id
+
+        # - type: ToCompositeFieldPath
+        #   fromFieldPath: status.tags
+        #   toFieldPath: status.tags
+
+        - type: CombineFromComposite
+          combine:
+            variables:
+              - fromFieldPath: spec.namespace
+              - fromFieldPath: spec.region
+              - fromFieldPath: spec.env
+              - fromFieldPath: spec.name
+            strategy: string
+            string:
+              fmt: "%s-%s-%s-%s"
+          toFieldPath: metadata.annotations[id]
+          policy:
+            fromFieldPath: Required
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.namespace
+          toFieldPath: metadata.annotations[namespace]
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: metadata.annotations[region]
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.env
+          toFieldPath: metadata.annotations[env]
+
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.name
+          toFieldPath: metadata.annotations[name]
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[id]
+          toFieldPath: status.id
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[id]
+          toFieldPath: status.tags.id
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[namespace]
+          toFieldPath: status.tags.namespace
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[region]
+          toFieldPath: status.tags.region
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[env]
+          toFieldPath: status.tags.env
+
+        - type: ToCompositeFieldPath
+          fromFieldPath: metadata.annotations[name]
+          toFieldPath: status.tags.name
