@@ -9,7 +9,8 @@ spec:
   id: platform-ref-aws
   parameters:
     nodes:
-      count: 1
+      #count: 1
+      count: 0
       size: small
   writeConnectionSecretToRef:
     name: platform-ref-aws-kubeconfig
