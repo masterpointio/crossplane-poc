@@ -19,6 +19,7 @@ spec:
     - base:
         apiVersion: ec2.aws.upbound.io/v1beta1
         kind: VPC
+        # We import an external resource
         metadata:
           annotations:
             crossplane.io/external-name: vpc-032670cd84361dd9e
@@ -38,6 +39,10 @@ spec:
     - base:
         apiVersion: ec2.aws.upbound.io/v1beta1
         kind: InternetGateway
+        # We import an external resource
+        metadata:
+          annotations:
+            crossplane.io/external-name: igw-00199f9f2670c050c
         spec:
           forProvider:
             region: us-west-2

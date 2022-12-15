@@ -19,9 +19,7 @@ up uxp install
 #### Installation
 
 ```bash
-kubectl apply -f providers/provider-aws.yaml
-kubectl apply -f provider-helm.yaml
-kubectl apply -f provider-kubernetes.yaml
+kubectl apply -f providers/provider-aws.yaml -f providers/provider-helm.yaml -f providers/provider-kubernetes.yaml
 ```
 
 Validate that all of them are healthy:

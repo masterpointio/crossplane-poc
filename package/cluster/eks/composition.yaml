@@ -209,7 +209,8 @@ spec:
           policy:
             fromFieldPath: Required
     - base:
-        apiVersion: helm.crossplane.io/v1beta1
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+       # apiVersion: helm.crossplane.io/v1beta1
         kind: ProviderConfig
         spec:
           credentials:
@@ -233,51 +234,48 @@ spec:
       readinessChecks:
         - type: None
 
-# # aws-auth
-#     - name: eks-aws-auth-config
-#       base:
-#         apiVersion: kubernetes.crossplane.io/v1alpha1
-#         kind: Object
-#         spec:
-#           deletionPolicy: Orphan
-#           forProvider:
-#             manifest:
-#               apiVersion: v1
-#               kind: ConfigMap
-#               metadata:
-#                 name: aws-auth
-#                 namespace: kube-system
-#               data:
-#                 mapRoles: ""
-#                 mapUsers: ""
-#       patches:
-#       - fromFieldPath: &name metadata.name
-#         transforms:
-#         - type: string
-#           string:
-#             fmt: "%s-aws-auth"
-#       - fromFieldPath: *name
-#         toFieldPath: spec.providerConfigRef.name
+# aws-auth
+    - base:
+        apiVersion: kubernetes.crossplane.io/v1alpha1
+        kind: Object
+        spec:
+          deletionPolicy: Orphan
+          forProvider:
+            manifest:
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: aws-auth
+                namespace: kube-system
+              data:
+                mapRoles: ""
+                mapUsers: ""
+      name: eksAwsAuthConfig
+      patches:
+      - type: FromCompositeFieldPath
+        fromFieldPath: spec.id
+        toFieldPath: spec.providerConfigRef.name
 
-#       # - fromFieldPath: spec.parameters.awsAuth.mapAccounts
-#       #   toFieldPath: spec.forProvider.manifest.data.mapAccounts
-#       # - fromFieldPath: spec.parameters.awsAuth.mapUsers
-#       #   toFieldPath: spec.forProvider.manifest.data.mapUsers
-
-#       # now add the data
-#       - type: CombineFromComposite
-#         toFieldPath: spec.forProvider.manifest.data.mapRoles
-#         combine:
-#           variables:
-#           - fromFieldPath: status.ngRoleArn
-#           - fromFieldPath: spec.parameters.awsAuth.mapRoles
-#           strategy: string
-#           string:
-#             fmt: |
-#               - rolearn: %s
-#                 username: system:node:{{EC2PrivateDNSName}}
-#                 groups:
-#                 - system:bootstrappers
-#                 - system:nodes
-#               %s
+      # add the data
+      - type: CombineFromComposite
+        toFieldPath: spec.forProvider.manifest.data.mapRoles
+        combine:
+          variables:
+          - fromFieldPath: status.nodegroupRoleArn
+          #- fromFieldPath: spec.parameters.awsAuth.mapRoles
+          strategy: string
+          string:
+            fmt: |
+              - rolearn: %s
+                username: system:node:{{EC2PrivateDNSName}}
+                groups:
+                - system:bootstrappers
+                - system:nodes
+            # fmt: |
+            #   - rolearn: %s
+            #     username: system:node:{{EC2PrivateDNSName}}
+            #     groups:
+            #     - system:bootstrappers
+            #     - system:nodes
+            #   %s
 
