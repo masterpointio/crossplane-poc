@@ -9,8 +9,13 @@ spec:
   id: platform-ref-aws
   parameters:
     nodes:
-      #count: 1
-      count: 0
+      count: 1
       size: small
+    awsAuth:
+      mapRoles: |
+        - groups:
+          - system:masters
+          rolearn: arn:aws:iam::651643910964:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d91ffa8520c0883b
+          username: cluster-admin
   writeConnectionSecretToRef:
     name: platform-ref-aws-kubeconfig

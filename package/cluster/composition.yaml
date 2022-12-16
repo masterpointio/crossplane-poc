@@ -56,3 +56,7 @@ spec:
           toFieldPath: spec.parameters.securityGroupIds
           policy:
             fromFieldPath: Required
+        - fromFieldPath: spec.parameters.awsAuth.mapRoles
+          toFieldPath: spec.parameters.awsAuth.mapRoles
+          policy:
+            fromFieldPath: Required

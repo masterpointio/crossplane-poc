@@ -174,7 +174,7 @@ spec:
               matchLabels:
                 access: public
             scalingConfig:
-              - minSize: 1
+              - minSize: 0
                 maxSize: 100
                 desiredSize: 1
             instanceTypes:
@@ -234,7 +234,7 @@ spec:
       readinessChecks:
         - type: None
 
-# aws-auth
+    # ConfigMap `aws-auth`
     - base:
         apiVersion: kubernetes.crossplane.io/v1alpha1
         kind: Object
@@ -249,20 +249,18 @@ spec:
                 namespace: kube-system
               data:
                 mapRoles: ""
-                mapUsers: ""
       name: eksAwsAuthConfig
       patches:
       - type: FromCompositeFieldPath
         fromFieldPath: spec.id
         toFieldPath: spec.providerConfigRef.name
-
       # add the data
       - type: CombineFromComposite
         toFieldPath: spec.forProvider.manifest.data.mapRoles
         combine:
           variables:
           - fromFieldPath: status.nodegroupRoleArn
-          #- fromFieldPath: spec.parameters.awsAuth.mapRoles
+          - fromFieldPath: spec.parameters.awsAuth.mapRoles
           strategy: string
           string:
             fmt: |
@@ -271,11 +269,5 @@ spec:
                 groups:
                 - system:bootstrappers
                 - system:nodes
-            # fmt: |
-            #   - rolearn: %s
-            #     username: system:node:{{EC2PrivateDNSName}}
-            #     groups:
-            #     - system:bootstrappers
-            #     - system:nodes
-            #   %s
+              %s
 

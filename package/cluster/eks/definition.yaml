@@ -52,7 +52,16 @@ spec:
                     required:
                     - count
                     - size
+                  awsAuth:
+                    type: object
+                    description: ConfigMap aws-auth configuration parameters.
+                    properties:
+                      mapRoles:
+                        type: string
+                    required:
+                    - mapRoles
                 required:
+                - awsAuth
                 - nodes
                 - subnetIds
                 - securityGroupIds
