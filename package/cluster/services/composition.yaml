@@ -1,0 +1,134 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: xservices.aws.platformref.upbound.io
+spec:
+  writeConnectionSecretsToNamespace: upbound-system
+  compositeTypeRef:
+    apiVersion: aws.platformref.upbound.io/v1alpha1
+    kind: XServices
+  resources:
+    - base:
+        apiVersion: kms.aws.upbound.io/v1beta1
+        kind: Key
+        metadata:
+          labels:
+            masterpoint.io/name: sops-secrets-operator-key
+        spec:
+          forProvider:
+            deletionWindowInDays: 8
+            description: KMS Key
+      patches:
+        - fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: CombineFromComposite
+          toFieldPath: spec.forProvider.policy
+          combine:
+            variables:
+            - fromFieldPath: spec.kms.sopsSecretsOperatorKeyRoles.admin
+            # - fromFieldPath: spec.parameters.awsAuth.mapRoles
+            strategy: string
+            string:
+              fmt: |
+                {
+                    "Statement": [
+                        {
+                            "Sid": "Admin Permissions",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [%s]
+                            },
+                            "Action": "kms:*",
+                            "Resource": "*"
+                        },
+                        {
+                            "Sid": "Usage Permissions",
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": [
+                                    "*"
+                                ]
+                            },
+                            "Action": [
+                                "kms:ReEncrypt*",
+                                "kms:GenerateDataKey*",
+                                "kms:Encrypt",
+                                "kms:DescribeKey",
+                                "kms:Decrypt"
+                            ],
+                            "Resource": "*"
+                        }
+                    ]
+                }
+    - base:
+        apiVersion: kms.aws.upbound.io/v1beta1
+        kind: Alias
+        metadata:
+          name: sops-secrets-operator-key-alias
+          annotations:
+            crossplane.io/external-name: alias/sops-secrets-operator-key
+        spec:
+          forProvider:
+            targetKeyIdSelector:
+              matchLabels:
+                masterpoint.io/name: sops-secrets-operator-key
+      patches:
+        - fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.sopsSecretOperatorKeyArn
+    # - base:
+    #     apiVersion: iam.aws.upbound.io/v1beta1
+    #     kind: Role
+    #     metadata:
+    #       labels:
+    #         role: sops-secrets-operator
+    #     spec:
+    #       forProvider:
+    #         assumeRolePolicy: |
+    #           {
+    #             "Version": "2012-10-17",
+    #             "Statement": [
+    #                 {
+    #                     "Effect": "Allow",
+    #                     "Action": [
+    #                         "kms:ReEncrypt*",
+    #                         "kms:GenerateDataKey*",
+    #                         "kms:Encrypt",
+    #                         "kms:DescribeKey",
+    #                         "kms:Decrypt"
+    #                     ],
+    #             "Resource": "arn:aws:kms:us-east-1:174937083238:alias/duos-ue1-dev-sops-secrets-operator-key",
+    #                 }
+    #             ]
+    #           }
+    #   patches:
+    #     - type: ToCompositeFieldPath
+    #       fromFieldPath: status.atProvider.arn
+    #       toFieldPath: status.nodegroupRoleArn
+    #   name: nodegroupRole
+    # - base:
+    #     apiVersion: helm.crossplane.io/v1beta1
+    #     kind: Release
+    #     spec:
+    #       rollbackLimit: 3
+    #       forProvider:
+    #         namespace: masterpoint-system
+    #         chart:
+    #           name: sops-secrets-operator
+    #           repository: https://isindir.github.io/sops-secrets-operator/
+    #         values: {}
+    #   name: sopsSecretsOperator
+    #   patches:
+    #     # All Helm releases derive their labels and annotations from the XR.
+    #     - fromFieldPath: metadata.labels
+    #       toFieldPath: metadata.labels
+    #     - fromFieldPath: metadata.annotations
+    #       toFieldPath: metadata.annotations
+    #     # All Helm releases derive the ProviderConfig to use from the XR.
+    #     - fromFieldPath: spec.providerConfigRef.name
+    #       toFieldPath: spec.providerConfigRef.name
+    #     # Derive the SOPS operator image and tag from the XR.
+    #     - fromFieldPath: spec.operators.sops.version
+    #       toFieldPath: spec.forProvider.chart.version

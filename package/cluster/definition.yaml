@@ -30,6 +30,10 @@ spec:
                 type: object
                 description: Cluster configuration parameters.
                 properties:
+                  region:
+                    type: string
+                  # regionTest:
+                  #   type: string
                   nodes:
                     type: object
                     description: Cluster node configuration parameters.
@@ -55,6 +59,18 @@ spec:
                         type: string
                     required:
                     - mapRoles
+                  services:
+                    type: object
+                    description: Services configuration parameters.
+                    properties:
+                      kms:
+                        type: object
+                        properties:
+                          sopsSecretsOperatorKeyRoles:
+                            type: object
+                            properties:
+                              admin:
+                                type: string
                 required:
                 - nodes
                 - awsAuth

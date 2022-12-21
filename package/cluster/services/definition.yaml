@@ -1,0 +1,61 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xservices.aws.platformref.upbound.io
+spec:
+  group: aws.platformref.upbound.io
+  names:
+    kind: XServices
+    plural: xservices
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              region:
+                type: string
+              kms:
+                type: object
+                description: Configuration for KMS keys.
+                properties:
+                  sopsSecretsOperatorKeyRoles:
+                    type: object
+                    properties:
+                      admin:
+                        type: string
+            #   operators:
+            #     type: object
+            #     description: Configuration for operators.
+            #     properties:
+            #       sops:
+            #         type: object
+            #         description: Configuration for the SOPS operator.
+            #         properties:
+            #           version:
+            #             type: string
+            #             description: SOPS operator version to run.
+            #   providerConfigRef:
+            #     type: object
+            #     description: "A reference to the ProviderConfig of the cluster that services should be deployed to."
+            #     properties:
+            #       name:
+            #         type: string
+            #         description: "Name of the Kubernetes provider configuration.
+            #           This will typically be the name of the cluster with a
+            #           five character suffix appended."
+            #     required:
+            #     - name
+            # required:
+            # - providerConfigRef
+          status:
+            description: A Status represents the observed state
+            type: object
+            properties:
+              sopsSecretOperatorKeyArn:
+                type: string

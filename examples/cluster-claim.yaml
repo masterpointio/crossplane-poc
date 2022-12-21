@@ -8,8 +8,9 @@ metadata:
 spec:
   id: platform-ref-aws
   parameters:
+    region: us-west-2
     nodes:
-      count: 1
+      count: 0
       size: small
     awsAuth:
       mapRoles: |
@@ -17,5 +18,12 @@ spec:
           - system:masters
           rolearn: arn:aws:iam::651643910964:role/AWSReservedSSO_AdministratorAccess_d91ffa8520c0883b
           username: cluster-admin
+    services:
+      kms:
+        sopsSecretsOperatorKeyRoles:
+          admin: '"arn:aws:iam::651643910964:user/crossplane-poc-service", "arn:aws:iam::651643910964:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d91ffa8520c0883b"'
+    #   operators:
+    #     sops:
+    #       version: "34.5.1"
   writeConnectionSecretToRef:
     name: platform-ref-aws-kubeconfig

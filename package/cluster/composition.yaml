@@ -60,3 +60,18 @@ spec:
           toFieldPath: spec.parameters.awsAuth.mapRoles
           policy:
             fromFieldPath: Required
+    - base:
+        apiVersion: aws.platformref.upbound.io/v1alpha1
+        kind: XServices
+      name: compositeClusterServices
+      patches:
+        # - fromFieldPath: spec.id
+        #   toFieldPath: spec.providerConfigRef.name
+        # - fromFieldPath: spec.parameters.services.operators.sops.version
+        #   toFieldPath: spec.operators.sops.version
+        - fromFieldPath: spec.parameters.region
+          toFieldPath: spec.region
+        - fromFieldPath: spec.parameters.region
+          toFieldPath: spec.region
+        - fromFieldPath: spec.parameters.services.kms.sopsSecretsOperatorKeyRoles.admin
+          toFieldPath: spec.kms.sopsSecretsOperatorKeyRoles.admin
