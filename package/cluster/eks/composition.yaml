@@ -61,7 +61,6 @@ spec:
               - endpointPrivateAccess: true
                 endpointPublicAccess: true
             version: "1.23"
-            enabledClusterLogTypes: ["audit", "authenticator"]
       name: kubernetesCluster
       patches:
           # Change to spec id

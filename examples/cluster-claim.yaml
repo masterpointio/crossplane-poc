@@ -15,7 +15,7 @@ spec:
       mapRoles: |
         - groups:
           - system:masters
-          rolearn: arn:aws:iam::651643910964:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_d91ffa8520c0883b
+          rolearn: arn:aws:iam::651643910964:role/AWSReservedSSO_AdministratorAccess_d91ffa8520c0883b
           username: cluster-admin
   writeConnectionSecretToRef:
     name: platform-ref-aws-kubeconfig
