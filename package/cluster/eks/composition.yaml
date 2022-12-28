@@ -52,7 +52,6 @@ spec:
         kind: Cluster
         spec:
           forProvider:
-            region: us-west-2
             roleArnSelector:
               matchControllerRef: true
               matchLabels:
@@ -63,16 +62,15 @@ spec:
             version: "1.23"
       name: kubernetesCluster
       patches:
-          # Change to spec id
+        - fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
         - fromFieldPath: spec.parameters.securityGroupIds
           toFieldPath: spec.forProvider.vpcConfig[0].securityGroupIds
-        # - fromFieldPath: spec.parameters.securityGroupIdSelector
-        #   toFieldPath: spec.forProvider.vpcConfig[0].securityGroupIdSelector
         - fromFieldPath: spec.parameters.subnetIds
           toFieldPath: spec.forProvider.vpcConfig[0].subnetIds
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.identity[0].oidc[0].issuer
-          toFieldPath: status.eks.oidc
+          toFieldPath: status.oidc.issuer
           policy:
             fromFieldPath: Optional
     - base:
@@ -80,11 +78,12 @@ spec:
         kind: ClusterAuth
         spec:
           forProvider:
-            region: us-west-2
             clusterNameSelector:
               matchControllerRef: true
       name: kubernetesClusterAuth
       patches:
+        - fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
         - fromFieldPath: spec.writeConnectionSecretToRef.namespace
           toFieldPath: spec.writeConnectionSecretToRef.namespace
         - fromFieldPath: metadata.uid
@@ -163,7 +162,6 @@ spec:
         kind: NodeGroup
         spec:
           forProvider:
-            region: us-west-2
             clusterNameSelector:
               matchControllerRef: true
             nodeRoleArnSelector:
@@ -181,6 +179,8 @@ spec:
               - t3.medium
       name: nodeGroupPublic
       patches:
+        - fromFieldPath: spec.region
+          toFieldPath: spec.forProvider.region
         - fromFieldPath: spec.parameters.nodes.count
           toFieldPath: spec.forProvider.scalingConfig[0].desiredSize
         - fromFieldPath: spec.parameters.nodes.size
@@ -204,13 +204,15 @@ spec:
               - "9e99a48a9960b14926bb7f3b02e22da2b0ab7280"
       name: oidcProvider
       patches:
-        - fromFieldPath: status.eks.oidc
+        - fromFieldPath: status.oidc.issuer
           toFieldPath: spec.forProvider.url
           policy:
             fromFieldPath: Required
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.oidc.arn
     - base:
         apiVersion: kubernetes.crossplane.io/v1alpha1
-       # apiVersion: helm.crossplane.io/v1beta1
         kind: ProviderConfig
         spec:
           credentials:

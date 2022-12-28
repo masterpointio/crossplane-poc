@@ -1,9 +1,7 @@
 # crossplane-poc
 POC to build, run, and operate our own internal AWS cloud platform via Crossplane.
 
-This repo is forked from https://github.com/upbound/platform-ref-aws#build-and-push-your-platform, and then modified for our needs:
-1. Folder `provider` added.
-1. DB and APP resources removed.
+This repo is forked from https://github.com/upbound/platform-ref-aws#build-and-push-your-platform, and then modified for our needs.
 
 ## Steps
 
@@ -19,7 +17,7 @@ up uxp install
 #### Installation
 
 ```bash
-kubectl apply -f providers/provider-aws.yaml -f providers/provider-helm.yaml -f providers/provider-kubernetes.yaml
+kubectl apply -f providers/ -R
 ```
 
 Validate that all of them are healthy:

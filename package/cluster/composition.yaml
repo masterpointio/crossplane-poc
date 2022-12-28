@@ -34,6 +34,10 @@ spec:
       patches:
         - fromFieldPath: spec.id
           toFieldPath: spec.id
+        - fromFieldPath: spec.parameters.region
+          toFieldPath: spec.region
+        - fromFieldPath: spec.parameters.region
+          toFieldPath: spec.region
         - fromFieldPath: spec.id
           toFieldPath: metadata.annotations[crossplane.io/external-name]
         - fromFieldPath: metadata.uid
@@ -60,18 +64,33 @@ spec:
           toFieldPath: spec.parameters.awsAuth.mapRoles
           policy:
             fromFieldPath: Required
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.oidc.arn
+          toFieldPath: status.oidc.arn
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.oidc.issuer
+          toFieldPath: status.oidc.issuer
     - base:
         apiVersion: aws.platformref.upbound.io/v1alpha1
         kind: XServices
       name: compositeClusterServices
       patches:
-        # - fromFieldPath: spec.id
-        #   toFieldPath: spec.providerConfigRef.name
-        # - fromFieldPath: spec.parameters.services.operators.sops.version
-        #   toFieldPath: spec.operators.sops.version
+        - fromFieldPath: spec.id
+          toFieldPath: spec.providerConfigRef.name
+        - fromFieldPath: spec.parameters.services.operators.sops.version
+          toFieldPath: spec.operators.sops.version
         - fromFieldPath: spec.parameters.region
           toFieldPath: spec.region
         - fromFieldPath: spec.parameters.region
           toFieldPath: spec.region
         - fromFieldPath: spec.parameters.services.kms.sopsSecretsOperatorKeyRoles.admin
           toFieldPath: spec.kms.sopsSecretsOperatorKeyRoles.admin
+        - fromFieldPath: status.oidc.arn
+          toFieldPath: spec.oidc.arn
+        - fromFieldPath: status.oidc.issuer
+          toFieldPath: spec.oidc.issuer
+          transforms:
+            - type: string
+              string:
+                type: TrimPrefix
+                trim: 'https://'

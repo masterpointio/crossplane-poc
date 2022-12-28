@@ -26,7 +26,6 @@ spec:
           combine:
             variables:
             - fromFieldPath: spec.kms.sopsSecretsOperatorKeyRoles.admin
-            # - fromFieldPath: spec.parameters.awsAuth.mapRoles
             strategy: string
             string:
               fmt: |
@@ -78,36 +77,91 @@ spec:
         - type: ToCompositeFieldPath
           fromFieldPath: status.atProvider.arn
           toFieldPath: status.sopsSecretOperatorKeyArn
-    # - base:
-    #     apiVersion: iam.aws.upbound.io/v1beta1
-    #     kind: Role
-    #     metadata:
-    #       labels:
-    #         role: sops-secrets-operator
-    #     spec:
-    #       forProvider:
-    #         assumeRolePolicy: |
-    #           {
-    #             "Version": "2012-10-17",
-    #             "Statement": [
-    #                 {
-    #                     "Effect": "Allow",
-    #                     "Action": [
-    #                         "kms:ReEncrypt*",
-    #                         "kms:GenerateDataKey*",
-    #                         "kms:Encrypt",
-    #                         "kms:DescribeKey",
-    #                         "kms:Decrypt"
-    #                     ],
-    #             "Resource": "arn:aws:kms:us-east-1:174937083238:alias/duos-ue1-dev-sops-secrets-operator-key",
-    #                 }
-    #             ]
-    #           }
-    #   patches:
-    #     - type: ToCompositeFieldPath
-    #       fromFieldPath: status.atProvider.arn
-    #       toFieldPath: status.nodegroupRoleArn
-    #   name: nodegroupRole
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Role
+        metadata:
+          name: sops-secrets-operator
+          labels:
+            masterpoint.io/name: sops-secrets-operator
+          annotations:
+            crossplane.io/external-name: sops-secrets-operator
+        status:
+          atProvider:
+            inlinePolicy:
+              name: sops-key-usage
+      patches:
+        - type: CombineFromComposite
+          toFieldPath: spec.forProvider.assumeRolePolicy
+          combine:
+            variables:
+            - fromFieldPath: spec.oidc.arn
+            - fromFieldPath: spec.oidc.issuer
+            strategy: string
+            string:
+              fmt: |
+                {
+                  "Statement": [
+                      {
+                          "Effect": "Allow",
+                          "Principal": {
+                              "Federated": "%s"
+                          },
+                          "Action": "sts:AssumeRoleWithWebIdentity",
+                          "Condition": {
+                            "StringLike": {
+                                "%s:sub": "system:serviceaccount:system:sops-secrets-operator"
+                              }
+                          }
+                      }
+                  ]
+                }
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: Policy
+        metadata:
+          labels:
+            masterpoint.io/name: sops-secrets-operator-policy
+          name: sops-secrets-operator-policy
+      patches:
+        - type: CombineFromComposite
+          toFieldPath: spec.forProvider.policy
+          combine:
+            variables:
+            - fromFieldPath: status.sopsSecretOperatorKeyArn
+            strategy: string
+            string:
+              fmt: |
+                {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                      {
+                          "Effect": "Allow",
+                          "Action": [
+                              "kms:ReEncrypt*",
+                              "kms:GenerateDataKey*",
+                              "kms:Encrypt",
+                              "kms:DescribeKey",
+                              "kms:Decrypt"
+                            ],
+                          "Resource": "%s"
+                      }
+                  ]
+                }
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider.arn
+          toFieldPath: status.sopsSecretOperatorPolicyArn
+    - base:
+        apiVersion: iam.aws.upbound.io/v1beta1
+        kind: RolePolicyAttachment
+        spec:
+          forProvider:
+            policyArnSelector:
+              matchLabels:
+                masterpoint.io/name: sops-secrets-operator-policy
+            roleSelector:
+              matchLabels:
+                masterpoint.io/name: sops-secrets-operator
     # - base:
     #     apiVersion: helm.crossplane.io/v1beta1
     #     kind: Release
@@ -118,8 +172,13 @@ spec:
     #         chart:
     #           name: sops-secrets-operator
     #           repository: https://isindir.github.io/sops-secrets-operator/
-    #         values: {}
-    #   name: sopsSecretsOperator
+    #           version: "0.12.5"
+    #         values: |
+    #           serviceAccount:
+    #             annotations:
+    #               eks.amazonaws.com/role-arn: arn:aws:iam::651643910964:role/sops-secrets-operator
+    #           securityContext:
+    #             enabled: true
     #   patches:
     #     # All Helm releases derive their labels and annotations from the XR.
     #     - fromFieldPath: metadata.labels
@@ -129,6 +188,4 @@ spec:
     #     # All Helm releases derive the ProviderConfig to use from the XR.
     #     - fromFieldPath: spec.providerConfigRef.name
     #       toFieldPath: spec.providerConfigRef.name
-    #     # Derive the SOPS operator image and tag from the XR.
-    #     - fromFieldPath: spec.operators.sops.version
-    #       toFieldPath: spec.forProvider.chart.version
+

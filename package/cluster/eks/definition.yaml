@@ -77,5 +77,12 @@ spec:
                 description: Freeform field containing status information for eks
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
+              oidc:
+                type: object
+                properties:
+                  arn:
+                    type: string
+                  issuer:
+                    type: string
               nodegroupRoleArn:
                 type: string

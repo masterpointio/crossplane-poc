@@ -32,8 +32,6 @@ spec:
                 properties:
                   region:
                     type: string
-                  # regionTest:
-                  #   type: string
                   nodes:
                     type: object
                     description: Cluster node configuration parameters.
@@ -88,3 +86,10 @@ spec:
                 type: array
                 items:
                   type: string
+              oidc:
+                type: object
+                properties:
+                  arn:
+                    type: string
+                  issuer:
+                    type: string

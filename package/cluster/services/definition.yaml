@@ -29,30 +29,33 @@ spec:
                     properties:
                       admin:
                         type: string
-            #   operators:
-            #     type: object
-            #     description: Configuration for operators.
-            #     properties:
-            #       sops:
-            #         type: object
-            #         description: Configuration for the SOPS operator.
-            #         properties:
-            #           version:
-            #             type: string
-            #             description: SOPS operator version to run.
-            #   providerConfigRef:
-            #     type: object
-            #     description: "A reference to the ProviderConfig of the cluster that services should be deployed to."
-            #     properties:
-            #       name:
-            #         type: string
-            #         description: "Name of the Kubernetes provider configuration.
-            #           This will typically be the name of the cluster with a
-            #           five character suffix appended."
-            #     required:
-            #     - name
-            # required:
-            # - providerConfigRef
+              oidc:
+                type: object
+                properties:
+                  arn:
+                    type: string
+                  issuer:
+                    type: string
+              operators:
+                type: object
+                description: Configuration for operators.
+                properties:
+                  sops:
+                    type: object
+                    description: Configuration for the SOPS operator.
+                    properties:
+                      version:
+                        type: string
+                        description: SOPS operator version to run.
+              providerConfigRef:
+                type: object
+                description: "A reference to the ProviderConfig of the cluster that services should be deployed to."
+                properties:
+                  name:
+                    type: string
+                    description: "Name of the Kubernetes provider configuration.
+                      This will typically be the name of the cluster with a
+                      five character suffix appended."
           status:
             description: A Status represents the observed state
             type: object
